@@ -143,4 +143,5 @@ cat << EOF > /Library/LaunchDaemons/mcloud.tinc.plist
 EOF
 ```
 
+10. Add in your responder file into the hosts directory
 
