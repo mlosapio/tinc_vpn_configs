@@ -71,7 +71,7 @@ Subnet = 100.64.0.102/32
 This will be executed every time tinc connects
 
 ```
-cat << EOF > /usr/local/etc/tinc/mcloud/tinc-up
+cat << 'EOF' > /usr/local/etc/tinc/mcloud/tinc-up
 #!/bin/sh
 
 ifconfig $INTERFACE 100.64.0.102 netmask 255.255.255.0
@@ -93,7 +93,7 @@ EOF
 This will be run when tinc disconnects
 
 ```
-cat << EOF > /usr/local/etc/tinc/mcloud/tinc-down
+cat << 'EOF' > /usr/local/etc/tinc/mcloud/tinc-down
 #!/bin/sh
 
 ifconfig $INTERFACE down
@@ -114,7 +114,7 @@ EOF
 (you may have to run this as root)
 
 ```
-cat << EOF > /Library/LaunchDaemons/mcloud.tinc.plist
+cat << 'EOF' > /Library/LaunchDaemons/mcloud.tinc.plist
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -149,4 +149,4 @@ EOF
 
 ```
  sudo launchctl load -w /Library/LaunchDaemons/mcloud.tinc.plist
- ```
+```
