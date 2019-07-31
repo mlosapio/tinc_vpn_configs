@@ -85,6 +85,7 @@ ConnectTo = $HUB$
 PrivateKeyFile = /usr/local/etc/tinc/mcloud/rsa_key.priv
 Device = /dev/tap0
 EOF
+```
 
 7. Create the plist file
 
