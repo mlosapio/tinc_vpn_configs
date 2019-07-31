@@ -145,3 +145,8 @@ EOF
 
 10. Add in your responder file into the hosts directory
 
+11. Fire it up!
+
+```
+ sudo launchctl load -w /Library/LaunchDaemons/mcloud.tinc.plist
+ ```
