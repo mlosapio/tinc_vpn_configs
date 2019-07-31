@@ -145,8 +145,14 @@ EOF
 
 10. Add in your responder file into the hosts directory
 
-11. Fire it up!
+11. Housekeeping items
 
 ```
- sudo launchctl load -w /Library/LaunchDaemons/mcloud.tinc.plist
+mkdir -p  /usr/local/Cellar/tinc/1.0.35/var/run/
+chmod +x /usr/local/etc/tinc/mcloud/tinc-up
+chmod +x /usr/local/etc/tinc/mcloud/tinc-down
+sudo launchctl load -w /Library/LaunchDaemons/mcloud.tinc.plist
 ```
+
+12. Make sure your DNS record is not your local resolver since you're now
+tunneling all the traffic!
