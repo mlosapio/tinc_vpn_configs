@@ -111,6 +111,8 @@ EOF
 
 9. Create the plist file
 
+(you may have to run this as root)
+
 ```
 cat << EOF > /Library/LaunchDaemons/mcloud.tinc.plist
 <?xml version="1.0" encoding="UTF-8"?>
