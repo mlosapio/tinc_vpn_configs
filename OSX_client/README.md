@@ -96,16 +96,16 @@ This will be run when tinc disconnects
 cat << EOF > /usr/local/etc/tinc/mcloud/tinc-down
 #!/bin/sh
 
-ifconfig $INTERFACE 100.64.0.102 netmask 255.255.255.0
+ifconfig $INTERFACE down
 
-route add -net 100.64.0.2 100.64.0.102 255.255.255.0
+route del -net 100.64.0.2 100.64.0.102 255.255.255.0
 
 #make all traffic to be sent over our vpn
-route add -net 0.0.0.0 100.64.0.2 128.0.0.0
-route add -net 128.0.0.0 100.64.0.2 128.0.0.0
+route del -net 0.0.0.0 100.64.0.2 128.0.0.0
+route del -net 128.0.0.0 100.64.0.2 128.0.0.0
 
 # keep normal route to server - This is helpful for VMWARE
-# route add -net <IP OF RESPONDER> 192.168.136.2 255.255.255.255
+# route del -net <IP OF RESPONDER> 192.168.136.2 255.255.255.255
 EOF
 ```
 
