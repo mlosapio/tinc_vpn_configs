@@ -74,6 +74,8 @@ This will be executed every time tinc connects
 cat << 'EOF' > /usr/local/etc/tinc/mcloud/tinc-up
 #!/bin/sh
 
+ip=$(route -n get default | grep gateway | awk -F':' '{print $2}')
+
 ifconfig $INTERFACE 100.64.0.102 netmask 255.255.255.0
 
 route add -net 100.64.0.2 100.64.0.102 255.255.255.0
@@ -83,7 +85,7 @@ route add -net 0.0.0.0 100.64.0.2 128.0.0.0
 route add -net 128.0.0.0 100.64.0.2 128.0.0.0
 
 # keep normal route to server - This is helpful for VMWARE
-# route add -net <IP OF RESPONDER> 192.168.136.2 255.255.255.255
+route add -net <RESPONDERIP> ${ip} 255.255.255.255
 EOF
 
 ```
@@ -95,21 +97,32 @@ This will be run when tinc disconnects
 ```
 cat << 'EOF' > /usr/local/etc/tinc/mcloud/tinc-down
 #!/bin/sh
-
+  
 ifconfig $INTERFACE down
 
-route del -net 100.64.0.2 100.64.0.102 255.255.255.0
+route delete -net 100.64.0.2 100.64.0.102 255.255.255.0
 
 #make all traffic to be sent over our vpn
-route del -net 0.0.0.0 100.64.0.2 128.0.0.0
-route del -net 128.0.0.0 100.64.0.2 128.0.0.0
+route delete -net 0.0.0.0 100.64.0.2 128.0.0.0
+route delete -net 128.0.0.0 100.64.0.2 128.0.0.0
 
 # keep normal route to server - This is helpful for VMWARE
-# route del -net <IP OF RESPONDER> 192.168.136.2 255.255.255.255
+route delete -net 34.236.15.133/32
 EOF
 ```
 
-9. Create the plist file
+9. Create reload script
+
+```
+cat << EOF > /usr/local/etc/tinc/mcloud/reload_tinc.sh 
+#!/bin/sh
+
+launchctl stop tinc.vpn
+launchctl start tinc.vpn
+EOF
+```
+
+10. Create the plist file
 
 (you may have to run this as root)
 
@@ -143,16 +156,40 @@ cat << 'EOF' > /Library/LaunchDaemons/mcloud.tinc.plist
 EOF
 ```
 
-10. Add in your responder file into the hosts directory
+11. Create plist to montor for network changes
 
-11. Housekeeping items
+```
+cat << EOF > /Library/LaunchDaemons/vpn.watcher.plist 
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>vpn.watcher</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/etc/tinc/mcloud/reload_tinc.sh</string>
+    </array>
+    <key>WatchPaths</key>
+    <array>
+        <string>/var/run/resolv.conf</string>
+    </array>
+</dict>
+</plist>
+EOF
+```
+
+12. Add in your responder file into the hosts directory
+
+13. Housekeeping items
 
 ```
 mkdir -p  /usr/local/Cellar/tinc/1.0.35/var/run/
 chmod +x /usr/local/etc/tinc/mcloud/tinc-up
 chmod +x /usr/local/etc/tinc/mcloud/tinc-down
+chmod +x /usr/local/etc/tinc/mcloud/reload_tinc.sh 
 sudo launchctl load -w /Library/LaunchDaemons/mcloud.tinc.plist
 ```
 
-12. Make sure your DNS record is not your local resolver since you're now
+14. Make sure your DNS record is not your local resolver since you're now
 tunneling all the traffic!
