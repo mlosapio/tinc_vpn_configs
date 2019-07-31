@@ -29,7 +29,44 @@ brew cask install tuntap
 mkdir -p /usr/local/etc/tinc/mcloud/hosts
 ```
 
-4. Create the tinc-up file
+4. Create the config
+
+- Pick a name for this client. You should put that name where I have $NAME$
+- ConnectTo is the name of the hub. You should put the name of your hub in $HUB$
+
+
+```
+cat << EOF > /usr/local/etc/tinc/mcloud/tinc.conf
+Name = $NAME$
+ConnectTo = $HUB$
+PrivateKeyFile = /usr/local/etc/tinc/mcloud/rsa_key.priv
+Device = /dev/tap0
+EOF
+```
+
+5. Run the tincd key generation command and accept the defaults
+
+```
+/usr/local/sbin/tincd -n mcloud -K
+```
+
+6. Add your OSX host file to the VPN responder
+
+Go into /usr/local/etc/tinc/mcloud/hosts and you'll find a file
+that's been created named $NAME$ from the earlier step.
+
+Add the header to the file and pass it along to the hosts directory
+of the responder
+
+```
+Subnet = 100.64.0.102/32
+
+-----BEGIN RSA PUBLIC KEY-----
+...
+-----END RSA PUBLIC KEY-----
+```
+
+7. Create the tinc-up file
 
 This will be executed every time tinc connects
 
@@ -51,7 +88,7 @@ EOF
 
 ```
 
-5. Create the tinc-down file
+8. Create the tinc-down file
 
 This will be run when tinc disconnects
 
@@ -72,22 +109,7 @@ route add -net 128.0.0.0 100.64.0.2 128.0.0.0
 EOF
 ```
 
-6. Create the config
-
-- Pick a name for this client. You should put that name where I have $NAME$
-- ConnectTo is the name of the hub. You should put the name of your hub in $HUB$
-
-
-```
-cat << EOF > /usr/local/etc/tinc/mcloud/tinc.conf
-Name = $NAME$
-ConnectTo = $HUB$
-PrivateKeyFile = /usr/local/etc/tinc/mcloud/rsa_key.priv
-Device = /dev/tap0
-EOF
-```
-
-7. Create the plist file
+9. Create the plist file
 
 ```
 cat << EOF > /Library/LaunchDaemons/mcloud.tinc.plist
@@ -118,8 +140,5 @@ cat << EOF > /Library/LaunchDaemons/mcloud.tinc.plist
 </plist>
 EOF
 ```
-
-### On the "hub"
-*Think of this as the VPN responder.*
 
 
